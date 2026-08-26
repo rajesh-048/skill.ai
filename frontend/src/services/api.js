@@ -3,7 +3,7 @@ import axios from 'axios';
 // In production (Vercel), API calls are proxied via vercel.json rewrites.
 // In development, Vite's proxy handles /api → localhost:8000.
 // For direct backend access (e.g. mobile or custom domain), set VITE_API_URL.
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'https://skillsphere-backend-k1kw.onrender.com/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -231,7 +231,7 @@ export const chatWithMentorStreamApi = (payload, { onToken, onMeta, onDone, onEr
 
   const token = localStorage.getItem('skillsphere_token');
 
-  fetch(`${API_BASE_URL}/ai/chat/stream`, {
+  fetch('https://skillsphere-backend-k1kw.onrender.com/api/ai/chat/stream', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
