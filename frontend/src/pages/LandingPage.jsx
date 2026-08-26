@@ -47,11 +47,11 @@ export const LandingPage = ({ onOpenJudgeDemo }) => {
           </h1>
 
           <p className="text-lg sm:text-xl font-medium text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            "Know Your Gaps. Learn Smarter. Grow Faster."
+            Know Your Gaps. Learn Smarter. Grow Faster.
           </p>
 
           <p className="text-sm text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            AI-driven competency gap identification, adaptive 30-day personalized learning roadmaps, instant MCQ generation from uploaded notes, and seamless integration with the <strong>iGOT Karmayogi</strong> ecosystem.
+            AI-Powered Personalized Learning and Competency Intelligence Platform. Identify skill gaps, get adaptive learning paths, and track progress — built for government & enterprise capacity building.
           </p>
 
           {/* Primary Action Buttons */}
@@ -61,16 +61,24 @@ export const LandingPage = ({ onOpenJudgeDemo }) => {
               className="px-6 py-3.5 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-sm shadow-xl shadow-brand-500/25 flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
             >
               <Zap className="w-4 h-4" />
-              <span>Try Demo as Student (Ravi Kumar)</span>
+              <span>Start Assessment</span>
               <ArrowRight className="w-4 h-4" />
             </button>
 
             <button
-              onClick={onOpenJudgeDemo}
+              onClick={() => handleDemoClick('student')}
               className="px-6 py-3.5 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-bold text-sm shadow-lg flex items-center gap-2 transition-all hover:scale-105"
             >
               <Sparkles className="w-4 h-4 text-amber-400 dark:text-amber-500" />
-              <span>1-Click Judge Demonstration</span>
+              <span>Explore Platform</span>
+            </button>
+
+            <button
+              onClick={onOpenJudgeDemo}
+              className="px-6 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg shadow-emerald-500/25 flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>1-Click Judge Demo</span>
             </button>
           </div>
 

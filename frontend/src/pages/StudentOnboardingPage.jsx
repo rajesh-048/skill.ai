@@ -9,11 +9,17 @@ export const StudentOnboardingPage = () => {
   const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
+  const totalSteps = 3;
   const [formData, setFormData] = useState({
     name: user?.profile?.full_name || 'Ravi Kumar',
+    department: user?.profile?.department || 'Ministry of Statistics & Programme Implementation',
+    designation: user?.profile?.designation || 'Trainee Statistical Officer',
+    job_role: user?.profile?.job_role || 'Data Analyst',
     education_level: user?.profile?.education_level || 'B.Tech',
     branch: user?.profile?.branch || 'Computer Science & Engineering',
     semester: user?.profile?.semester || 4,
+    experience_years: user?.profile?.experience_years || 0,
+    previous_training: user?.profile?.previous_training || 'None',
     career_goal: user?.profile?.career_goal || 'AI/ML Engineer',
     preferred_learning_style: 'Hands-on Projects & AI Quizzes',
     daily_learning_time_min: 60,
@@ -61,18 +67,23 @@ export const StudentOnboardingPage = () => {
         <div className="px-6 py-5 bg-gradient-to-r from-brand-600 to-emerald-600 text-white flex items-center justify-between">
           <div>
             <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-white/20 text-white">
-              Step {step} of 2 • Personalization Wizard
+              Step {step} of 3 • Personalization Wizard
             </span>
             <h2 className="text-lg font-extrabold text-white mt-1">
-              {step === 1 ? 'Academic Profile & Target Goal' : 'Skill Calibration & Self-Rating'}
+              {step === 1 ? 'Professional Profile & Department' : step === 2 ? 'Learning Preferences' : 'Skill Calibration & Self-Rating'}
             </h2>
+            {/* Step Progress Dots */}
+            <div className="flex items-center gap-1.5 mt-2">
+              {[1, 2, 3].map((s) => (
+                <div key={s} className={`h-1.5 rounded-full transition-all ${step >= s ? 'bg-white w-8' : 'bg-white/30 w-4'}`} />
+              ))}
+            </div>
           </div>
           <Sparkles className="w-6 h-6 text-emerald-200" />
         </div>
 
         {/* Form Body */}
-        <div className="p-6 sm:p-8 space-y-6">
-          {step === 1 ? (
+        <div className="p-6 sm:p-8 space-y-6">            {step === 1 ? (
             <div className="space-y-4 animate-in fade-in">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -89,6 +100,57 @@ export const StudentOnboardingPage = () => {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Department / Organization
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.department}
+                    onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                    placeholder="e.g. Ministry of Statistics & Programme Implementation"
+                    className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Designation
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.designation}
+                    onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
+                    placeholder="e.g. Trainee Statistical Officer"
+                    className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
+                    <Target className="w-3.5 h-3.5 text-brand-600" />
+                    Job Role (Drives AI Recommendations)
+                  </label>
+                  <select
+                    value={formData.job_role}
+                    onChange={(e) => setFormData({ ...formData, job_role: e.target.value })}
+                    className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
+                  >
+                    <option value="Data Analyst">Data Analyst</option>
+                    <option value="Software Developer">Software Developer</option>
+                    <option value="Data Scientist">Data Scientist</option>
+                    <option value="ML Engineer">ML Engineer</option>
+                    <option value="DevOps Engineer">DevOps Engineer</option>
+                    <option value="Full Stack Developer">Full Stack Developer</option>
+                    <option value="Project Manager">Project Manager</option>
+                    <option value="Statistical Officer">Statistical Officer</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Education Level
                   </label>
                   <select
@@ -102,9 +164,7 @@ export const StudentOnboardingPage = () => {
                     <option value="MoSPI Trainee">MoSPI / Civil Services Trainee</option>
                   </select>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Branch / Major
@@ -117,19 +177,40 @@ export const StudentOnboardingPage = () => {
                     className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
                   />
                 </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Experience (Years)
+                  </label>
+                  <select
+                    value={formData.experience_years}
+                    onChange={(e) => setFormData({ ...formData, experience_years: parseInt(e.target.value) })}
+                    className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
+                  >
+                    <option value={0}>Fresher (0 years)</option>
+                    <option value={1}>1 year</option>
+                    <option value={2}>2 years</option>
+                    <option value={3}>3-5 years</option>
+                    <option value={5}>5+ years</option>
+                  </select>
+                </div>
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Current Semester
+                    Previous Training
                   </label>
                   <select
-                    value={formData.semester}
-                    onChange={(e) => setFormData({ ...formData, semester: parseInt(e.target.value) })}
+                    value={formData.previous_training}
+                    onChange={(e) => setFormData({ ...formData, previous_training: e.target.value })}
                     className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
                   >
-                    {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
-                      <option key={s} value={s}>Semester {s}</option>
-                    ))}
+                    <option value="None">None</option>
+                    <option value="Online Courses">Online Courses (Coursera, Udemy)</option>
+                    <option value="Corporate Training">Corporate / Government Training</option>
+                    <option value="Self-taught">Self-taught / Books</option>
+                    <option value="Bootcamp">Bootcamp / Workshop</option>
                   </select>
                 </div>
               </div>
@@ -146,6 +227,24 @@ export const StudentOnboardingPage = () => {
                   placeholder="e.g. AI/ML Engineer, Data Scientist, Full Stack Developer"
                   className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
                 />
+              </div>
+
+              <div className="pt-4 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setStep(2)}
+                  className="px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs shadow-md shadow-brand-500/20 flex items-center gap-2"
+                >
+                  <span>Continue to Learning Preferences</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ) : step === 2 ? (
+            <div className="space-y-4 animate-in fade-in">
+              {/* Step 2: Learning Preferences */}
+              <div className="p-3.5 rounded-2xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900/60 text-xs text-indigo-800 dark:text-indigo-300">
+                📚 Set your learning preferences so SkillSphere AI can personalize your experience.
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -168,7 +267,7 @@ export const StudentOnboardingPage = () => {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Preferred Style
+                    Preferred Learning Style
                   </label>
                   <select
                     value={formData.preferred_learning_style}
@@ -182,10 +281,35 @@ export const StudentOnboardingPage = () => {
                 </div>
               </div>
 
-              <div className="pt-4 flex justify-end">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Current Semester
+                  </label>
+                  <select
+                    value={formData.semester}
+                    onChange={(e) => setFormData({ ...formData, semester: parseInt(e.target.value) })}
+                    className="w-full text-xs px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
+                  >
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
+                      <option key={s} value={s}>Semester {s}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="pt-4 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
                 <button
                   type="button"
-                  onClick={() => setStep(2)}
+                  onClick={() => setStep(1)}
+                  className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-200"
+                >
+                  Back
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setStep(3)}
                   className="px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs shadow-md shadow-brand-500/20 flex items-center gap-2"
                 >
                   <span>Continue to Skill Self-Rating</span>
@@ -195,6 +319,7 @@ export const StudentOnboardingPage = () => {
             </div>
           ) : (
             <div className="space-y-4 animate-in fade-in">
+              {/* Step 3: Skill Self-Rating */}
               <div className="p-3.5 rounded-2xl bg-brand-50/80 dark:bg-brand-950/40 border border-brand-200 dark:border-brand-900/60 text-xs text-brand-800 dark:text-brand-300">
                 ⭐ Rate your current competency level in foundational topics. SkillSphere AI uses this to initialize your competency radar and prioritize gap remediation.
               </div>
@@ -237,7 +362,7 @@ export const StudentOnboardingPage = () => {
               <div className="pt-4 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
                 <button
                   type="button"
-                  onClick={() => setStep(1)}
+                  onClick={() => setStep(2)}
                   className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-200"
                 >
                   Back

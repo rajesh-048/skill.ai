@@ -7,7 +7,8 @@ import {
 } from 'lucide-react';
 import { 
   ResponsiveContainer, BarChart, Bar, LineChart, Line, 
-  XAxis, YAxis, Tooltip, CartesianGrid 
+  PieChart, Pie, Cell, 
+  XAxis, YAxis, Tooltip, CartesianGrid, Legend 
 } from 'recharts';
 import { getStudentDashboardApi, recalculateCompetencyApi, getCoursesApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -71,6 +72,21 @@ export const StudentDashboardPage = ({ onOpenQuiz, onOpenUpload, onOpenDemoModal
   const enrollments = dashboardData?.active_enrollments || [];
   const weeklyProgress = dashboardData?.weekly_progress || [];
   const quizChart = dashboardData?.quiz_chart_data || [];
+
+  // Skill distribution for Pie Chart
+  const skillDistData = skills.length > 0 ? [
+    { name: 'Mastery (80-100%)', value: skills.filter(s => s.score >= 80).length, color: '#10b981' },
+    { name: 'Proficient (60-79%)', value: skills.filter(s => s.score >= 60 && s.score < 80).length, color: '#3b82f6' },
+    { name: 'Developing (40-59%)', value: skills.filter(s => s.score >= 40 && s.score < 60).length, color: '#f59e0b' },
+    { name: 'Critical (<40%)', value: skills.filter(s => s.score < 40).length, color: '#ef4444' },
+  ].filter(d => d.value > 0) : [
+    { name: 'Mastery', value: 2, color: '#10b981' },
+    { name: 'Proficient', value: 3, color: '#3b82f6' },
+    { name: 'Developing', value: 4, color: '#f59e0b' },
+    { name: 'Critical', value: 2, color: '#ef4444' },
+  ];
+  
+  const LEARN_COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'];
 
   return (
     <div className="space-y-8 pb-12">
@@ -322,6 +338,85 @@ export const StudentDashboardPage = ({ onOpenQuiz, onOpenUpload, onOpenDemoModal
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Skill Distribution Pie Chart + Competency Breakdown */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Skill Distribution Pie */}
+        <div className="p-6 rounded-3xl bg-white dark:bg-navy-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
+          <div className="flex items-center gap-2">
+            <BarChart2 className="w-4 h-4 text-rose-500" />
+            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+              Skill Distribution
+            </h4>
+          </div>
+          <div className="h-52 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={skillDistData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={45}
+                  outerRadius={75}
+                  paddingAngle={4}
+                  dataKey="value"
+                >
+                  {skillDistData.map((entry, index) => (
+                    <Cell key={index} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px', color: '#fff', fontSize: '11px' }}
+                />
+                <Legend
+                  verticalAlign="bottom"
+                  height={36}
+                  formatter={(value) => <span style={{ color: '#94a3b8', fontSize: '10px' }}>{value}</span>}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Competency Breakdown Cards */}
+        <div className="lg:col-span-2 p-6 rounded-3xl bg-white dark:bg-navy-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
+          <div className="flex items-center gap-2">
+            <Award className="w-4 h-4 text-brand-600" />
+            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+              Competency Breakdown
+            </h4>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {skillDistData.map((d, i) => (
+              <div key={i} className="p-3 rounded-2xl text-center" style={{ backgroundColor: d.color + '15', border: `1px solid ${d.color}30` }}>
+                <div className="text-2xl font-black" style={{ color: d.color }}>{d.value}</div>
+                <div className="text-[10px] font-bold uppercase tracking-wider mt-0.5" style={{ color: d.color }}>{d.name.split(' ')[0]}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Skills list with scores */}
+          <div className="space-y-2 pt-2">
+            {skills.slice(0, 5).map((s, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="w-32 text-[11px] font-bold text-slate-700 dark:text-slate-300 truncate">
+                  {s.skill_name || s.name}
+                </div>
+                <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-700"
+                    style={{
+                      width: `${s.score}%`,
+                      backgroundColor: s.score >= 80 ? '#10b981' : s.score >= 60 ? '#3b82f6' : s.score >= 40 ? '#f59e0b' : '#ef4444'
+                    }}
+                  />
+                </div>
+                <span className="text-[11px] font-bold text-slate-500 w-8 text-right">{s.score}%</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

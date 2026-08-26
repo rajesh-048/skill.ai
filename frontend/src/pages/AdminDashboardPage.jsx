@@ -4,7 +4,7 @@ import {
   BarChart3, Users, Shield, Cpu, Activity, Database, 
   CheckCircle2, TrendingUp, RefreshCw, Layers, ArrowRight 
 } from 'lucide-react';
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar } from 'recharts';
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, Legend } from 'recharts';
 import { getAdminStatsApi, getSystemHealthApi } from '../services/api';
 
 export const AdminDashboardPage = () => {
@@ -40,8 +40,36 @@ export const AdminDashboardPage = () => {
   }
 
   const metrics = stats?.metrics || {};
-  const userGrowth = stats?.user_growth || [];
-  const competencyDist = stats?.competency_distribution || [];
+  const userGrowth = stats?.userGrowth || [];
+  const competencyDist = stats?.competencyDist || [];
+
+  // Department-wise Skill Gaps data
+  const deptSkillGaps = [
+    { dept: 'Computer Science', gaps: 3, avg_score: 72 },
+    { dept: 'Statistics', gaps: 5, avg_score: 58 },
+    { dept: 'Mathematics', gaps: 4, avg_score: 65 },
+    { dept: 'Electronics', gaps: 6, avg_score: 52 },
+    { dept: 'Civil Services', gaps: 2, avg_score: 78 },
+  ];
+
+  // Training Effectiveness data
+  const trainingEffectiveness = [
+    { month: 'Jan', effectiveness: 62, completions: 45 },
+    { month: 'Feb', effectiveness: 68, completions: 52 },
+    { month: 'Mar', effectiveness: 71, completions: 61 },
+    { month: 'Apr', effectiveness: 75, completions: 78 },
+    { month: 'May', effectiveness: 79, completions: 85 },
+    { month: 'Jun', effectiveness: 82, completions: 92 },
+  ];
+
+  // Most Common Skill Gaps
+  const commonGaps = [
+    { skill: 'SQL & Database', gap_pct: 42 },
+    { skill: 'Power BI', gap_pct: 38 },
+    { skill: 'Python Advanced', gap_pct: 35 },
+    { skill: 'Machine Learning', gap_pct: 28 },
+    { skill: 'Data Visualization', gap_pct: 22 },
+  ];
 
   return (
     <div className="space-y-8 pb-12">
@@ -184,6 +212,122 @@ export const AdminDashboardPage = () => {
           </div>
         </div>
 
+      </div>
+
+      {/* Department-wise Skill Gaps + Training Effectiveness */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Department-wise Skill Gaps */}
+        <div className="p-6 rounded-3xl bg-white dark:bg-navy-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+              Department-wise Skill Gaps
+            </h4>
+            <span className="text-[10px] font-bold text-rose-600">Action Required</span>
+          </div>
+
+          <div className="h-56 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={deptSkillGaps} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" stroke="#94a3b8" opacity={0.15} />
+                <XAxis type="number" tick={{ fill: '#64748b', fontSize: 11 }} />
+                <YAxis dataKey="dept" type="category" tick={{ fill: '#64748b', fontSize: 10 }} width={110} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px', color: '#fff', fontSize: '11px' }}
+                />
+                <Bar dataKey="gaps" name="Skill Gaps" fill="#ef4444" radius={[0, 6, 6, 0]} />
+                <Bar dataKey="avg_score" name="Avg Score" fill="#3b82f6" radius={[0, 6, 6, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Training Effectiveness Trend */}
+        <div className="p-6 rounded-3xl bg-white dark:bg-navy-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+              Training Effectiveness Trend
+            </h4>
+            <span className="text-[10px] font-bold text-emerald-600">+20% Improvement</span>
+          </div>
+
+          <div className="h-56 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={trainingEffectiveness}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#94a3b8" opacity={0.15} />
+                <XAxis dataKey="month" tick={{ fill: '#64748b', fontSize: 11 }} />
+                <YAxis tick={{ fill: '#64748b', fontSize: 11 }} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px', color: '#fff', fontSize: '11px' }}
+                />
+                <Legend formatter={(value) => <span style={{ color: '#94a3b8', fontSize: '11px' }}>{value}</span>} />
+                <Line type="monotone" dataKey="effectiveness" name="Effectiveness %" stroke="#10b981" strokeWidth={3} dot={{ r: 4, fill: '#10b981' }} />
+                <Line type="monotone" dataKey="completions" name="Completions" stroke="#6366f1" strokeWidth={2} dot={{ r: 3, fill: '#6366f1' }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* Most Common Skill Gaps + Average Competency Score */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Most Common Skill Gaps */}
+        <div className="p-6 rounded-3xl bg-white dark:bg-navy-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
+          <div className="flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-rose-600" />
+            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+              Most Common Skill Gaps Across Cohort
+            </h4>
+          </div>
+
+          <div className="space-y-3">
+            {commonGaps.map((g, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="w-28 text-[11px] font-bold text-slate-700 dark:text-slate-300 truncate">
+                  {g.skill}
+                </div>
+                <div className="flex-1 h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-rose-500 transition-all duration-700"
+                    style={{ width: `${g.gap_pct}%` }}
+                  />
+                </div>
+                <span className="text-[11px] font-bold text-rose-500 w-10 text-right">{g.gap_pct}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Average Competency Score Gauge */}
+        <div className="p-6 rounded-3xl bg-white dark:bg-navy-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-emerald-600" />
+            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+              Average Competency Score by Department
+            </h4>
+          </div>
+
+          <div className="space-y-3">
+            {deptSkillGaps.map((d, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="w-28 text-[11px] font-bold text-slate-700 dark:text-slate-300 truncate">
+                  {d.dept}
+                </div>
+                <div className="flex-1 h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-700"
+                    style={{
+                      width: `${d.avg_score}%`,
+                      backgroundColor: d.avg_score >= 70 ? '#10b981' : d.avg_score >= 55 ? '#f59e0b' : '#ef4444'
+                    }}
+                  />
+                </div>
+                <span className="text-[11px] font-bold w-10 text-right" style={{ color: d.avg_score >= 70 ? '#10b981' : d.avg_score >= 55 ? '#f59e0b' : '#ef4444' }}>
+                  {d.avg_score}%
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
     </div>

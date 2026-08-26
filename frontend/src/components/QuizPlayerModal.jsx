@@ -247,6 +247,65 @@ export const QuizPlayerModal = ({ quiz, isOpen, onClose, onQuizCompleted }) => {
                 </span>
               </div>
 
+              {/* Strong Areas & Weak Areas Breakdown */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Strong Areas */}
+                <div className="p-4 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <h4 className="text-xs font-bold text-emerald-900 dark:text-emerald-200 uppercase tracking-wider">Strong Areas</h4>
+                  </div>
+                  <div className="space-y-1.5">
+                    {(result.answers || []).filter(a => a.is_correct).length > 0 ?
+                      [...new Set((result.answers || []).filter(a => a.is_correct).map(a => a.topic))].map((topic, i) => (
+                        <div key={i} className="flex items-center gap-2 text-xs text-emerald-800 dark:text-emerald-300">
+                          <span className="text-emerald-500">✓</span>
+                          <span className="font-semibold">{topic}</span>
+                        </div>
+                      )) :
+                      <p className="text-xs text-emerald-700 dark:text-emerald-400 italic">Keep practicing — you'll get there!</p>
+                    }
+                  </div>
+                </div>
+
+                {/* Weak Areas */}
+                <div className="p-4 rounded-2xl bg-rose-50/60 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-rose-600" />
+                    <h4 className="text-xs font-bold text-rose-900 dark:text-rose-200 uppercase tracking-wider">Weak Areas</h4>
+                  </div>
+                  <div className="space-y-1.5">
+                    {(result.answers || []).filter(a => !a.is_correct).length > 0 ?
+                      [...new Set((result.answers || []).filter(a => !a.is_correct).map(a => a.topic))].map((topic, i) => (
+                        <div key={i} className="flex items-center gap-2 text-xs text-rose-800 dark:text-rose-300">
+                          <span className="text-rose-500">×</span>
+                          <span className="font-semibold">{topic}</span>
+                        </div>
+                      )) :
+                      <p className="text-xs text-emerald-700 dark:text-emerald-400 font-semibold">No weak areas — excellent performance! 🎉</p>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              {/* Recommended Learning */}
+              {((result.answers || []).filter(a => !a.is_correct).length > 0) && (
+                <div className="p-4 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900/50 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="w-4 h-4 text-indigo-600" />
+                    <h4 className="text-xs font-bold text-indigo-900 dark:text-indigo-200 uppercase tracking-wider">Recommended Learning</h4>
+                  </div>
+                  <div className="space-y-1.5">
+                    {[...new Set((result.answers || []).filter(a => !a.is_correct).map(a => a.topic))].map((topic, i) => (
+                      <div key={i} className="flex items-center gap-2 text-xs text-indigo-800 dark:text-indigo-300">
+                        <ArrowRight className="w-3 h-3 text-indigo-500" />
+                        <span>Review <strong>{topic}</strong> — {result.answers.find(a => a.topic === topic && !a.is_correct)?.explanation?.substring(0, 80)}...</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Detailed Question Answers with Explanations */}
               <div className="space-y-4">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
