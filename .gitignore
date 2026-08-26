@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+frontend/dist/
+*.egg-info/
+
+# Database files
+backend/data/*.db
+backend/data/*.db-wal
+backend/data/*.db-shm
+
+# Uploads
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Freebuff
+.freebuff/
+
+# Test / Cache
+.pytest_cache/
+.coverage
+htmlcov/
