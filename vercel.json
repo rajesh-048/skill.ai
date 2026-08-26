@@ -1,31 +1,12 @@
 {
-  "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "api/index.py",
-      "use": "@vercel/python"
+      "source": "/api/:path*",
+      "destination": "https://skillsphere-backend-k1kw.onrender.com/api/:path*"
     },
     {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "command": "npm run build",
-        "outputDirectory": "dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/index.py"
-    },
-    {
-      "src": "/uploads/(.*)",
-      "dest": "/api/index.py"
-    },
-    {
-      "src": "/(.*?)$",
-      "dest": "/frontend/$1"
+      "source": "/uploads/:path*",
+      "destination": "https://skillsphere-backend-k1kw.onrender.com/uploads/:path*"
     }
   ]
 }
