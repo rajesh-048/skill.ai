@@ -2,29 +2,48 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, Play, ChevronRight, Upload, Brain, BarChart3, Users, Zap, Shield, Globe, BookOpen, Target, TrendingUp, CheckCircle2, Sparkles, Menu, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-/* ─── Animated Background Particles ─── */
-const ParticleField = () => (
-  <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-    {Array.from({ length: 40 }).map((_, i) => (
-      <div
-        key={i}
-        className="absolute rounded-full bg-cyan-400/20"
-        style={{
-          width: `${2 + Math.random() * 3}px`,
-          height: `${2 + Math.random() * 3}px`,
-          left: `${Math.random() * 100}%`,
-          top: `${Math.random() * 100}%`,
-          animation: `float-particle ${6 + Math.random() * 8}s ease-in-out infinite`,
-          animationDelay: `${Math.random() * 5}s`,
-        }}
-      />
-    ))}
-  </div>
-);
+gsap.registerPlugin(ScrollTrigger);
 
-/* ─── AI Brain SVG ─── */
+/* ─── GSAP Animated Background Particles ─── */
+const ParticleField = ({ count = 40 }) => {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!ref.current) return;
+    const particles = ref.current.querySelectorAll('.particle');
+    particles.forEach((p, i) => {
+      gsap.set(p, { x: Math.random() * 100 + '%', y: Math.random() * 100 + '%' });
+      gsap.to(p, {
+        y: '-=30',
+        x: '+=' + (Math.random() * 20 - 10),
+        opacity: Math.random() * 0.5 + 0.2,
+        duration: 4 + Math.random() * 4,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+        delay: Math.random() * 3,
+      });
+    });
+  }, []);
+  return (
+    <div ref={ref} className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+      {Array.from({ length: count }).map((_, i) => (
+        <div
+          key={i}
+          className="particle absolute rounded-full bg-cyan-400/30"
+          style={{ width: `${2 + Math.random() * 3}px`, height: `${2 + Math.random() * 3}px` }}
+        />
+      ))}
+    </div>
+  );
+};
+
+/* ─── GSAP AI Brain SVG ─── */
 const AIBrain = () => {
+  const containerRef = useRef(null);
+  const svgRef = useRef(null);
   const nodes = [
     { x: 200, y: 120, label: 'Python', pct: 72, color: '#3b82f6' },
     { x: 80, y: 200, label: 'Statistics', pct: 85, color: '#10b981' },
@@ -35,38 +54,93 @@ const AIBrain = () => {
   ];
   const [hovered, setHovered] = useState(null);
 
+  useEffect(() => {
+    if (!svgRef.current) return;
+    const ctx = gsap.context(() => {
+      const svg = svgRef.current;
+      // Animate brain center
+      const center = svg.querySelector('.brain-center');
+      if (center) {
+        gsap.from(center, { scale: 0, opacity: 0, duration: 1.2, ease: 'elastic.out(1, 0.5)', delay: 0.3 });
+        gsap.to(center, { scale: 1.05, duration: 2, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 1.5 });
+      }
+      // Animate connection lines
+      const lines = svg.querySelectorAll('.brain-line');
+      lines.forEach((line, i) => {
+        gsap.from(line, { opacity: 0, attr: { x1: 200, y1: 200 }, duration: 0.6, delay: 0.5 + i * 0.1, ease: 'power2.out' });
+      });
+      // Animate skill nodes with stagger
+      const skillNodes = svg.querySelectorAll('.skill-node');
+      gsap.from(skillNodes, {
+        scale: 0, opacity: 0, duration: 0.8, stagger: 0.12, delay: 0.8, ease: 'back.out(2)',
+      });
+      // Continuous orbital float for each node
+      skillNodes.forEach((node, i) => {
+        gsap.to(node, {
+          y: '+=' + (4 + i * 2),
+          duration: 2.5 + i * 0.3,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+          delay: i * 0.2,
+        });
+      });
+      // Orbit ring rotation
+      const rings = svg.querySelectorAll('.orbit-ring');
+      rings.forEach((ring, i) => {
+        gsap.to(ring, {
+          rotation: i % 2 === 0 ? 360 : -360,
+          duration: 30 + i * 15,
+          repeat: -1,
+          ease: 'none',
+          transformOrigin: '200px 200px',
+        });
+      });
+      // Scan ring effect after 4 seconds
+      const scanRing = svg.querySelector('.scan-ring');
+      if (scanRing) {
+        gsap.fromTo(scanRing,
+          { y: -100, scale: 0.8, opacity: 0 },
+          { y: 100, scale: 1.2, opacity: 0.6, duration: 2, delay: 4, repeat: -1, repeatDelay: 6, ease: 'power1.inOut' }
+        );
+      }
+    }, svgRef);
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <div className="relative w-full max-w-[420px] aspect-square mx-auto">
-      {/* Central brain glow */}
+    <div ref={containerRef} className="relative w-full max-w-[420px] aspect-square mx-auto">
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="w-40 h-40 rounded-full bg-gradient-to-br from-cyan-500/20 via-blue-500/15 to-violet-500/20 blur-2xl animate-pulse" />
       </div>
-      <svg viewBox="0 0 400 400" className="w-full h-full relative z-10">
+      <svg ref={svgRef} viewBox="0 0 400 400" className="w-full h-full relative z-10">
         {/* Connection lines */}
         {nodes.map((n, i) => (
-          <line
-            key={`line-${i}`}
-            x1={200} y1={200} x2={n.x} y2={n.y}
+          <line key={i} className="brain-line" x1={200} y1={200} x2={n.x} y2={n.y}
             stroke="url(#lineGrad)" strokeWidth="1" opacity="0.4"
-            className="transition-opacity duration-300"
             style={{ opacity: hovered === i ? 0.9 : 0.3 }}
           />
         ))}
-        {/* Orbit ring */}
-        <circle cx="200" cy="200" r="140" fill="none" stroke="url(#orbitGrad)" strokeWidth="0.5" opacity="0.3" strokeDasharray="4 8" className="animate-[spin_30s_linear_infinite]" style={{ transformOrigin: '200px 200px' }} />
-        <circle cx="200" cy="200" r="170" fill="none" stroke="url(#orbitGrad)" strokeWidth="0.3" opacity="0.15" strokeDasharray="2 12" className="animate-[spin_45s_linear_infinite_reverse]" style={{ transformOrigin: '200px 200px' }} />
-        {/* Brain center icon */}
-        <circle cx="200" cy="200" r="28" fill="url(#brainGrad)" opacity="0.9" />
-        <text x="200" y="207" textAnchor="middle" fill="white" fontSize="22" fontWeight="bold">AI</text>
+        {/* Orbit rings */}
+        <circle className="orbit-ring" cx="200" cy="200" r="140" fill="none" stroke="url(#orbitGrad)" strokeWidth="0.5" opacity="0.3" strokeDasharray="4 8" style={{ transformOrigin: '200px 200px' }} />
+        <circle className="orbit-ring" cx="200" cy="200" r="170" fill="none" stroke="url(#orbitGrad)" strokeWidth="0.3" opacity="0.15" strokeDasharray="2 12" style={{ transformOrigin: '200px 200px' }} />
+        {/* Scan ring */}
+        <ellipse className="scan-ring" cx="200" cy="200" rx="130" ry="10" fill="none" stroke="#06b6d4" strokeWidth="1.5" opacity="0" />
+        {/* Brain center */}
+        <g className="brain-center">
+          <circle cx="200" cy="200" r="28" fill="url(#brainGrad)" opacity="0.9" />
+          <text x="200" y="207" textAnchor="middle" fill="white" fontSize="22" fontWeight="bold">AI</text>
+        </g>
         {/* Skill nodes */}
         {nodes.map((n, i) => (
-          <g key={i}
+          <g key={i} className="skill-node cursor-pointer"
             onMouseEnter={() => setHovered(i)}
             onMouseLeave={() => setHovered(null)}
-            className="cursor-pointer"
-            style={{ animation: `float-node ${4 + i * 0.5}s ease-in-out infinite`, animationDelay: `${i * 0.3}s` }}
           >
-            <circle cx={n.x} cy={n.y} r={hovered === i ? 30 : 24} fill="rgba(15,23,42,0.8)" stroke={n.color} strokeWidth={hovered === i ? 2 : 1} className="transition-all duration-300" style={{ filter: hovered === i ? `drop-shadow(0 0 8px ${n.color})` : 'none' }} />
+            <circle cx={n.x} cy={n.y} r={hovered === i ? 30 : 24} fill="rgba(15,23,42,0.8)" stroke={n.color}
+              strokeWidth={hovered === i ? 2 : 1} className="transition-all duration-300"
+              style={{ filter: hovered === i ? `drop-shadow(0 0 12px ${n.color})` : 'none' }}
+            />
             <text x={n.x} y={n.y - 4} textAnchor="middle" fill={n.color} fontSize="9" fontWeight="700">{n.pct}%</text>
             <text x={n.x} y={n.y + 8} textAnchor="middle" fill="#94a3b8" fontSize="7">{n.label}</text>
           </g>
@@ -86,9 +160,10 @@ const AIBrain = () => {
           </radialGradient>
         </defs>
       </svg>
-      {/* Hover card */}
+      {/* Hover card with GSAP */}
       {hovered !== null && (
-        <div className="absolute z-20 bg-slate-900/95 backdrop-blur-md border border-cyan-500/30 rounded-xl p-3 shadow-xl shadow-cyan-500/10 text-xs min-w-[180px]" style={{ left: nodes[hovered].x > 200 ? '10%' : '55%', top: `${(nodes[hovered].y / 400) * 100 - 5}%` }}>
+        <div className="absolute z-20 bg-slate-900/95 backdrop-blur-md border border-cyan-500/30 rounded-xl p-3 shadow-xl shadow-cyan-500/10 text-xs min-w-[180px]"
+          style={{ left: nodes[hovered].x > 200 ? '10%' : '55%', top: `${(nodes[hovered].y / 400) * 100 - 5}%` }}>
           <div className="font-bold text-cyan-400 mb-1">Skill Gap Detected</div>
           <div className="text-slate-400">Current: <span className="text-white font-semibold">{nodes[hovered].pct}%</span></div>
           <div className="text-slate-400">Target: <span className="text-emerald-400 font-semibold">85%</span></div>
@@ -100,41 +175,49 @@ const AIBrain = () => {
   );
 };
 
-/* ─── Animated Counter ─── */
-const Counter = ({ end, suffix = '', duration = 2000 }) => {
-  const [count, setCount] = useState(0);
+/* ─── GSAP Animated Counter ─── */
+const Counter = ({ end, suffix = '', duration = 2 }) => {
   const ref = useRef(null);
-  const started = useRef(false);
+  const valRef = useRef({ v: 0 });
   useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting && !started.current) {
-        started.current = true;
-        const start = performance.now();
-        const step = (now) => {
-          const progress = Math.min((now - start) / duration, 1);
-          setCount(Math.floor(progress * end));
-          if (progress < 1) requestAnimationFrame(step);
-        };
-        requestAnimationFrame(step);
-      }
-    }, { threshold: 0.3 });
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, [end, duration]);
-  return <span ref={ref}>{count}{suffix}</span>;
+    if (!ref.current) return;
+    const ctx = gsap.context(() => {
+      gsap.to(valRef.current, {
+        v: end,
+        duration,
+        ease: 'power2.out',
+        scrollTrigger: { trigger: ref.current, start: 'top 85%', once: true },
+        onUpdate: () => { if (ref.current) ref.current.textContent = Math.round(valRef.current.v) + suffix; },
+      });
+    });
+    return () => ctx.revert();
+  }, [end, suffix, duration]);
+  return <span ref={ref}>0{suffix}</span>;
 };
 
-/* ─── Scroll Reveal ─── */
+/* ─── GSAP Scroll Reveal ─── */
 const Reveal = ({ children, className = '', delay = 0 }) => {
   const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
   useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVisible(true); }, { threshold: 0.15 });
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, []);
+    if (!ref.current) return;
+    const ctx = gsap.context(() => {
+      gsap.from(ref.current, {
+        y: 40,
+        opacity: 0,
+        duration: 0.8,
+        delay: delay / 1000,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: ref.current,
+          start: 'top 88%',
+          once: true,
+        },
+      });
+    });
+    return () => ctx.revert();
+  }, [delay]);
   return (
-    <div ref={ref} className={`transition-all duration-700 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'} ${className}`} style={{ transitionDelay: `${delay}ms` }}>
+    <div ref={ref} className={className}>
       {children}
     </div>
   );
@@ -222,8 +305,24 @@ export const LandingPage = () => {
     { num: '05', title: 'Grow', desc: 'Measure progress and update competency.', icon: <TrendingUp size={20} /> },
   ];
 
+  const heroRef = useRef(null);
+
+  useEffect(() => {
+    if (!heroRef.current) return;
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+      tl.from('.hero-badge', { y: 20, opacity: 0, duration: 0.6 })
+        .from('.hero-title span', { y: 40, opacity: 0, duration: 0.8, stagger: 0.15 }, '-=0.3')
+        .from('.hero-subtitle', { y: 20, opacity: 0, duration: 0.6 }, '-=0.4')
+        .from('.hero-cta', { y: 20, opacity: 0, duration: 0.5, stagger: 0.1 }, '-=0.3')
+        .from('.hero-stats > div', { y: 15, opacity: 0, duration: 0.4, stagger: 0.1 }, '-=0.2')
+        .from('.hero-brain', { scale: 0.8, opacity: 0, duration: 1, ease: 'elastic.out(1, 0.6)' }, '-=0.8');
+    }, heroRef);
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <div className="min-h-screen bg-[#0a0e1a] text-slate-100 font-sans overflow-x-hidden">
+    <div ref={heroRef} className="min-h-screen bg-[#0a0e1a] text-slate-100 font-sans overflow-x-hidden">
 
       {/* ═══ GLOBAL STYLES ═══ */}
       <style>{`
@@ -288,26 +387,26 @@ export const LandingPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left: Text */}
             <div className="space-y-6 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass glow-border text-xs font-semibold text-cyan-300">
+              <div className="hero-badge inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass glow-border text-xs font-semibold text-cyan-300">
                 <Sparkles size={12} /> AI-POWERED SKILL INTELLIGENCE
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.1] tracking-tight">
-                Know Your <span className="text-cyan-400">Skills</span>.<br />
-                Find Your <span className="text-blue-400">Gaps</span>.<br />
-                Build Your <span className="gradient-text">Future</span>.
+              <h1 className="hero-title text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.1] tracking-tight">
+                <span className="block">Know Your <span className="text-cyan-400">Skills</span>.</span>
+                <span className="block">Find Your <span className="text-blue-400">Gaps</span>.</span>
+                <span className="block">Build Your <span className="gradient-text">Future</span>.</span>
               </h1>
-              <p className="text-base sm:text-lg text-slate-400 max-w-lg mx-auto lg:mx-0 leading-relaxed">
+              <p className="hero-subtitle text-base sm:text-lg text-slate-400 max-w-lg mx-auto lg:mx-0 leading-relaxed">
                 AI-powered skill intelligence that transforms competency gaps into personalized learning journeys for India's future-ready statistical workforce.
               </p>
               <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
-                <button onClick={() => handleDemo('student')} className="px-6 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-sm hover:shadow-xl hover:shadow-cyan-500/25 transition-all flex items-center gap-2">
+                <button onClick={() => handleDemo('student')} className="hero-cta px-6 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-sm hover:shadow-xl hover:shadow-cyan-500/25 transition-all flex items-center gap-2">
                   Discover My Skill Path <ArrowRight size={16} />
                 </button>
-                <button className="px-6 py-3 rounded-2xl glass glow-border text-slate-300 font-bold text-sm hover:text-white transition-all flex items-center gap-2">
+                <button className="hero-cta px-6 py-3 rounded-2xl glass glow-border text-slate-300 font-bold text-sm hover:text-white transition-all flex items-center gap-2">
                   <Play size={14} className="text-cyan-400" /> Watch How It Works
                 </button>
               </div>
-              <div className="flex gap-8 pt-4 justify-center lg:justify-start">
+              <div className="hero-stats flex gap-8 pt-4 justify-center lg:justify-start">
                 {[
                   { val: 50, suffix: 'K+', label: 'Learners' },
                   { val: 120, suffix: '+', label: 'Learning Resources' },
@@ -321,7 +420,7 @@ export const LandingPage = () => {
               </div>
             </div>
             {/* Right: AI Brain */}
-            <div className="flex justify-center">
+            <div className="hero-brain flex justify-center">
               <AIBrain />
             </div>
           </div>
