@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { 
   Sparkles, Flame, Award, BookOpen, ArrowRight, Play, 
   HelpCircle, FileText, CheckCircle2, RefreshCw, AlertTriangle, 
-  Zap, Calendar, Clock, BarChart2, ShieldCheck, ChevronRight 
+  Zap, Calendar, Clock, BarChart2, ShieldCheck, ChevronRight, Brain 
 } from 'lucide-react';
 import { 
   ResponsiveContainer, BarChart, Bar, LineChart, Line, 
@@ -13,6 +13,7 @@ import {
 import { getStudentDashboardApi, recalculateCompetencyApi, getCoursesApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { CompetencyRadar } from '../components/CompetencyRadar';
+import CompetencyInterviewModal from '../components/CompetencyInterviewModal';
 
 export const StudentDashboardPage = ({ onOpenQuiz, onOpenUpload, onOpenDemoModal }) => {
   const { user, showToast } = useAuth();
@@ -20,6 +21,7 @@ export const StudentDashboardPage = ({ onOpenQuiz, onOpenUpload, onOpenDemoModal
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [recalculating, setRecalculating] = useState(false);
+  const [showInterview, setShowInterview] = useState(false);
 
   const fetchDashboard = async () => {
     try {
@@ -264,6 +266,17 @@ export const StudentDashboardPage = ({ onOpenQuiz, onOpenUpload, onOpenDemoModal
                 </div>
                 <div className="text-[10px] text-slate-400">Adaptive AI MCQs</div>
               </button>
+
+              <button
+                onClick={() => setShowInterview(true)}
+                className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-left border border-emerald-200/80 dark:border-emerald-700/60 transition-colors group"
+              >
+                <Brain className="w-4 h-4 text-emerald-600 mb-1" />
+                <div className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-emerald-600">
+                  Competency Interview
+                </div>
+                <div className="text-[10px] text-slate-400">AI Adaptive Q&A</div>
+              </button>
             </div>
           </div>
 
@@ -486,6 +499,12 @@ export const StudentDashboardPage = ({ onOpenQuiz, onOpenUpload, onOpenDemoModal
         </div>
 
       </div>
+
+      {/* AI Competency Interview Modal */}
+      <CompetencyInterviewModal
+        isOpen={showInterview}
+        onClose={() => setShowInterview(false)}
+      />
 
     </div>
   );

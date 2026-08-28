@@ -404,6 +404,46 @@ export const QuizPlayerModal = ({ quiz, isOpen, onClose, onQuizCompleted }) => {
         </div>
 
       </div>
+
+      {/* Post-Quiz Learning Loop */}
+      {quizState === 'results' && results && (
+        <div className="p-5 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200 mx-4 mb-4">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+              <RefreshCw size={16} className="text-emerald-600" />
+            </div>
+            <h4 className="text-sm font-bold text-emerald-800">Learning Loop Update</h4>
+          </div>
+          {results.updated_competencies && results.updated_competencies.length > 0 && (
+            <div className="space-y-2 mb-3">
+              <p className="text-xs font-semibold text-emerald-700">Your competency scores have been updated:</p>
+              {results.updated_competencies.slice(0, 3).map((comp, i) => (
+                <div key={i} className="flex items-center gap-3 bg-white rounded-xl p-3 border border-emerald-100">
+                  <span className="text-xs font-bold text-slate-800">{comp.skill_name}</span>
+                  <span className="text-sm font-black" style={{ color: comp.color }}>{comp.score}%</span>
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                    comp.gap_level === 'advanced' ? 'bg-green-100 text-green-700' :
+                    comp.gap_level === 'proficient' ? 'bg-yellow-100 text-yellow-700' :
+                    comp.gap_level === 'developing' ? 'bg-orange-100 text-orange-700' :
+                    'bg-red-100 text-red-700'
+                  }`}>{comp.gap_label}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="p-3 rounded-xl bg-emerald-100 border border-emerald-200">
+            <p className="text-xs font-bold text-emerald-800">Next Best Action</p>
+            <p className="text-[11px] text-emerald-600 mt-0.5">
+              {results.percentage >= 80
+                ? "Great performance! Try a Hard-level challenge or start a capstone project."
+                : results.percentage >= 50
+                ? "Good progress! Review weak areas and retake this quiz to improve."
+                : "Consider revisiting the fundamentals. Start your 30-Day Learning Path."
+              }
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -5,6 +5,114 @@ from backend.services.auth_service import get_current_user, require_role
 
 router = APIRouter(prefix="/admin", tags=["Admin Portal"])
 
+@router.get("/skill-intelligence")
+async def get_skill_intelligence(current_user: dict = Depends(get_current_user)):
+    """Workforce Skill Intelligence — the admin heatmap feature."""
+    with get_db() as conn:
+        cursor = conn.cursor()
+        
+        # Get all skills with average competency across all users
+        cursor.execute("""
+            SELECT s.name as skill_name, s.category,
+                   AVG(us.competency_score) as avg_score,
+                   COUNT(us.user_id) as users_assessed,
+                   SUM(CASE WHEN us.gap_level = 'critical' THEN 1 ELSE 0 END) as critical_count,
+                   SUM(CASE WHEN us.gap_level = 'developing' THEN 1 ELSE 0 END) as developing_count,
+                   SUM(CASE WHEN us.gap_level = 'proficient' THEN 1 ELSE 0 END) as proficient_count,
+                   SUM(CASE WHEN us.gap_level = 'advanced' THEN 1 ELSE 0 END) as advanced_count
+            FROM skills s
+            LEFT JOIN user_skills us ON s.id = us.skill_id
+            GROUP BY s.id, s.name, s.category
+            ORDER BY avg_score ASC
+        """)
+        skill_rows = [dict(r) for r in cursor.fetchall()]
+        
+        workforce_skills = []
+        for r in skill_rows:
+            avg = round(float(r["avg_score"]) if r["avg_score"] else 0, 1)
+            if avg < 40:
+                gap_level = "critical"
+                gap_label = "High Gap"
+            elif avg < 60:
+                gap_level = "developing"
+                gap_label = "Medium Gap"
+            elif avg < 80:
+                gap_level = "proficient"
+                gap_label = "Low Gap"
+            else:
+                gap_level = "advanced"
+                gap_label = "Minimal"
+            
+            workforce_skills.append({
+                "skill_name": r["skill_name"],
+                "category": r["category"],
+                "avg_score": avg,
+                "users_assessed": r["users_assessed"],
+                "gap_level": gap_level,
+                "gap_label": gap_label,
+                "critical_count": r["critical_count"],
+                "developing_count": r["developing_count"],
+                "proficient_count": r["proficient_count"],
+                "advanced_count": r["advanced_count"],
+            })
+        
+        # Department-wise analysis (using branch as department proxy)
+        cursor.execute("""
+            SELECT p.branch as department, 
+                   AVG(us.competency_score) as avg_competency,
+                   COUNT(DISTINCT us.user_id) as employee_count,
+                   SUM(CASE WHEN us.gap_level = 'critical' THEN 1 ELSE 0 END) as critical_skills
+            FROM profiles p
+            JOIN users u ON p.user_id = u.id
+            LEFT JOIN user_skills us ON u.id = us.user_id
+            WHERE p.branch IS NOT NULL
+            GROUP BY p.branch
+            ORDER BY avg_competency ASC
+        """)
+        dept_rows = [dict(r) for r in cursor.fetchall()]
+        
+        department_gaps = []
+        for r in dept_rows:
+            avg = round(float(r["avg_competency"]) if r["avg_competency"] else 0, 1)
+            department_gaps.append({
+                "department": r["department"],
+                "avg_competency": avg,
+                "employee_count": r["employee_count"],
+                "critical_skills": r["critical_skills"],
+            })
+        
+        # Future skill demand prediction (rule-based for prototype)
+        future_demand = [
+            {"skill": "AI/ML", "current_demand": 72, "projected_demand": 95, "urgency": "critical", "reason": "MoSPI adopting AI for statistical modeling"},
+            {"skill": "Data Analytics", "current_demand": 65, "projected_demand": 88, "urgency": "high", "reason": "Digital India initiatives require data-driven governance"},
+            {"skill": "Python", "current_demand": 58, "projected_demand": 82, "urgency": "high", "reason": "Primary language for statistical computing"},
+            {"skill": "Cloud Computing", "current_demand": 42, "projected_demand": 75, "urgency": "medium", "reason": "Government cloud-first policy (MeghRaj)"},
+            {"skill": "GIS/Remote Sensing", "current_demand": 38, "projected_demand": 70, "urgency": "medium", "reason": "Spatial data for Census & surveys"},
+            {"skill": "Cybersecurity", "current_demand": 35, "projected_demand": 65, "urgency": "medium", "reason": "Data security compliance requirements"},
+            {"skill": "Big Data", "current_demand": 30, "projected_demand": 60, "urgency": "medium", "reason": "Large-scale survey data processing"},
+        ]
+        
+        # Training effectiveness
+        cursor.execute("""
+            SELECT q.title as quiz_title, 
+                   AVG(qa.percentage) as avg_score,
+                   COUNT(qa.id) as attempts
+            FROM quiz_attempts qa
+            JOIN quizzes q ON qa.quiz_id = q.id
+            GROUP BY q.id
+            ORDER BY qa.created_at DESC
+            LIMIT 10
+        """)
+        training_data = [dict(r) for r in cursor.fetchall()]
+        
+        return {
+            "workforce_skills": workforce_skills,
+            "department_gaps": department_gaps,
+            "future_demand": future_demand,
+            "training_effectiveness": training_data,
+        }
+
+
 @router.get("/stats")
 async def get_admin_stats(current_user: dict = Depends(get_current_user)):
     with get_db() as conn:

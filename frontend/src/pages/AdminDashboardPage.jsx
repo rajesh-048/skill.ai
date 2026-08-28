@@ -7,9 +7,12 @@ import {
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, Legend } from 'recharts';
 import { getAdminStatsApi, getSystemHealthApi } from '../services/api';
 
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 export const AdminDashboardPage = () => {
   const [stats, setStats] = useState(null);
   const [health, setHealth] = useState(null);
+  const [skillIntel, setSkillIntel] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
@@ -20,6 +23,13 @@ export const AdminDashboardPage = () => {
       ]);
       setStats(sData);
       setHealth(hData);
+      try {
+        const token = localStorage.getItem('skillsphere_token');
+        const intelRes = await fetch(`${API_BASE}/api/admin/skill-intelligence`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (intelRes.ok) setSkillIntel(await intelRes.json());
+      } catch (e) { console.error('Skill intel fetch failed', e); }
     } catch (err) {
       console.error(err);
     } finally {
@@ -42,6 +52,8 @@ export const AdminDashboardPage = () => {
   const metrics = stats?.metrics || {};
   const userGrowth = stats?.userGrowth || [];
   const competencyDist = stats?.competencyDist || [];
+  const workforceSkills = skillIntel?.workforce_skills || [];
+  const futureDemand = skillIntel?.future_demand || [];
 
   // Department-wise Skill Gaps data
   const deptSkillGaps = [
@@ -329,6 +341,129 @@ export const AdminDashboardPage = () => {
           </div>
         </div>
       </div>
+
+
+      {/* Workforce Skill Intelligence Table */}
+      {workforceSkills.length > 0 && (
+        <div className="p-6 rounded-3xl bg-white dark:bg-navy-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-indigo-600" />
+              <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                Workforce Skill Intelligence
+              </h4>
+            </div>
+            <span className="text-[10px] font-bold text-slate-400">{workforceSkills.length} skills tracked</span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-slate-200 dark:border-slate-700">
+                  <th className="text-left py-2 px-3 font-bold text-slate-500 uppercase">Skill</th>
+                  <th className="text-center py-2 px-3 font-bold text-slate-500 uppercase">Level</th>
+                  <th className="text-center py-2 px-3 font-bold text-slate-500 uppercase">Gap</th>
+                  <th className="text-center py-2 px-3 font-bold text-slate-500 uppercase">Critical</th>
+                  <th className="text-center py-2 px-3 font-bold text-slate-500 uppercase">Developing</th>
+                  <th className="text-center py-2 px-3 font-bold text-slate-500 uppercase">Proficient</th>
+                  <th className="text-center py-2 px-3 font-bold text-slate-500 uppercase">Advanced</th>
+                </tr>
+              </thead>
+              <tbody>
+                {workforceSkills.map((s, i) => (
+                  <tr key={i} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50">
+                    <td className="py-2.5 px-3 font-semibold text-slate-800">{s.skill_name}</td>
+                    <td className="py-2.5 px-3 text-center">
+                      <div className="flex items-center gap-2 justify-center">
+                        <div className="w-16 h-2 bg-slate-100 rounded-full overflow-hidden">
+                          <div className="h-full rounded-full" style={{
+                            width: s.avg_score + '%',
+                            backgroundColor: s.avg_score >= 80 ? '#10b981' : s.avg_score >= 60 ? '#3b82f6' : s.avg_score >= 40 ? '#f59e0b' : '#ef4444'
+                          }} />
+                        </div>
+                        <span className="font-bold" style={{
+                          color: s.avg_score >= 80 ? '#10b981' : s.avg_score >= 60 ? '#3b82f6' : s.avg_score >= 40 ? '#f59e0b' : '#ef4444'
+                        }}>{s.avg_score}%</span>
+                      </div>
+                    </td>
+                    <td className="py-2.5 px-3 text-center">
+                      <span className={"px-2 py-0.5 rounded-full text-[10px] font-bold " + (
+                        s.gap_level === 'critical' ? 'bg-red-100 text-red-700' :
+                        s.gap_level === 'developing' ? 'bg-orange-100 text-orange-700' :
+                        s.gap_level === 'proficient' ? 'bg-yellow-100 text-yellow-700' :
+                        'bg-green-100 text-green-700'
+                      )}>{s.gap_label}</span>
+                    </td>
+                    <td className="py-2.5 px-3 text-center font-bold text-red-600">{s.critical_count}</td>
+                    <td className="py-2.5 px-3 text-center font-bold text-orange-600">{s.developing_count}</td>
+                    <td className="py-2.5 px-3 text-center font-bold text-yellow-600">{s.proficient_count}</td>
+                    <td className="py-2.5 px-3 text-center font-bold text-green-600">{s.advanced_count}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Future Skill Demand */}
+      {futureDemand.length > 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="p-6 rounded-3xl bg-white dark:bg-navy-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-purple-600" />
+              <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                Future Skill Demand Forecast
+              </h4>
+            </div>
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={futureDemand} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" stroke="#94a3b8" opacity={0.15} />
+                  <XAxis type="number" domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 11 }} />
+                  <YAxis dataKey="skill" type="category" tick={{ fill: '#64748b', fontSize: 10 }} width={100} />
+                  <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px', color: '#fff', fontSize: '11px' }} />
+                  <Legend formatter={(value) => <span style={{ color: '#94a3b8', fontSize: '10px' }}>{value}</span>} />
+                  <Bar dataKey="current_demand" name="Current" fill="#6366f1" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="projected_demand" name="Projected 2027" fill="#a855f7" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="p-6 rounded-3xl bg-white dark:bg-navy-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
+            <div className="flex items-center gap-2">
+              <Cpu className="w-4 h-4 text-purple-600" />
+              <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                Skill Demand Analysis
+              </h4>
+            </div>
+            <div className="space-y-3">
+              {futureDemand.map((d, i) => (
+                <div key={i} className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-bold text-slate-800">{d.skill}</span>
+                    <span className={"px-2 py-0.5 rounded-full text-[10px] font-bold " + (
+                      d.urgency === 'critical' ? 'bg-red-100 text-red-700' :
+                      d.urgency === 'high' ? 'bg-orange-100 text-orange-700' :
+                      'bg-yellow-100 text-yellow-700'
+                    )}>{d.urgency.toUpperCase()}</span>
+                  </div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                      <div className="h-full bg-indigo-400 rounded-full" style={{ width: d.current_demand + '%' }} />
+                    </div>
+                    <span className="text-[10px] text-slate-400">to</span>
+                    <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                      <div className="h-full bg-purple-500 rounded-full" style={{ width: d.projected_demand + '%' }} />
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-slate-500">{d.reason}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

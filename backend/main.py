@@ -19,6 +19,7 @@ from backend.routers.quiz_routes import router as quiz_router
 from backend.routers.ai_routes import router as ai_router
 from backend.routers.course_routes import router as course_router
 from backend.routers.igot_routes import router as igot_router
+from backend.routers.competency_interview_routes import router as competency_interview_router
 
 app = FastAPI(
     title="SkillSphere AI",
@@ -104,6 +105,7 @@ app.include_router(quiz_router, prefix=settings.API_V1_PREFIX)
 app.include_router(ai_router, prefix=settings.API_V1_PREFIX)
 app.include_router(course_router, prefix=settings.API_V1_PREFIX)
 app.include_router(igot_router, prefix=settings.API_V1_PREFIX)
+app.include_router(competency_interview_router, prefix=settings.API_V1_PREFIX)
 
 # Static files mounting for uploads
 app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
