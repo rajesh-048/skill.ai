@@ -1,329 +1,668 @@
-import React from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { 
-  Sparkles, ArrowRight, ShieldCheck, Zap, Brain, 
-  Map, FileText, HelpCircle, BarChart3, Users, CheckCircle2, Award 
-} from 'lucide-react';
+import { ArrowRight, Play, ChevronRight, Upload, Brain, BarChart3, Users, Zap, Shield, Globe, BookOpen, Target, TrendingUp, CheckCircle2, Sparkles, Menu, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-export const LandingPage = ({ onOpenJudgeDemo }) => {
-  const { loginAsDemo, isAuthenticated, user } = useAuth();
-  const navigate = useNavigate();
+/* ─── Animated Background Particles ─── */
+const ParticleField = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+    {Array.from({ length: 40 }).map((_, i) => (
+      <div
+        key={i}
+        className="absolute rounded-full bg-cyan-400/20"
+        style={{
+          width: `${2 + Math.random() * 3}px`,
+          height: `${2 + Math.random() * 3}px`,
+          left: `${Math.random() * 100}%`,
+          top: `${Math.random() * 100}%`,
+          animation: `float-particle ${6 + Math.random() * 8}s ease-in-out infinite`,
+          animationDelay: `${Math.random() * 5}s`,
+        }}
+      />
+    ))}
+  </div>
+);
 
-  const handleDemoClick = async (role = 'student') => {
-    await loginAsDemo(role);
-    if (role === 'student') navigate('/dashboard');
-    else if (role === 'instructor') navigate('/instructor');
-    else if (role === 'admin') navigate('/admin');
-  };
+/* ─── AI Brain SVG ─── */
+const AIBrain = () => {
+  const nodes = [
+    { x: 200, y: 120, label: 'Python', pct: 72, color: '#3b82f6' },
+    { x: 80, y: 200, label: 'Statistics', pct: 85, color: '#10b981' },
+    { x: 320, y: 200, label: 'SQL', pct: 68, color: '#f59e0b' },
+    { x: 100, y: 300, label: 'Data Viz', pct: 60, color: '#8b5cf6' },
+    { x: 300, y: 300, label: 'AI/ML', pct: 45, color: '#ef4444' },
+    { x: 200, y: 340, label: 'GIS', pct: 70, color: '#06b6d4' },
+  ];
+  const [hovered, setHovered] = useState(null);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-navy-950 text-slate-900 dark:text-slate-100 selection:bg-brand-500 selection:text-white">
-      
-      {/* Hero Section */}
-      <section className="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-28 border-b border-slate-200/80 dark:border-slate-800">
-        
-        {/* Glow backdrop */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-brand-500/20 via-indigo-500/15 to-transparent blur-3xl -z-10 pointer-events-none rounded-full" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-          
-          {/* Government MoSPI Pill */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm text-xs font-semibold text-slate-700 dark:text-slate-200">
-            <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
-            <span className="font-bold text-brand-700 dark:text-brand-400">MoSPI</span>
-            <span className="text-slate-300 dark:text-slate-700">•</span>
-            <span>SIH 2026 Problem ID: <strong>SIH26101</strong></span>
-            <span className="text-slate-300 dark:text-slate-700">•</span>
-            <span className="text-slate-500">Smart Education</span>
-          </div>
-
-          {/* Main Title & Tagline */}
-          <h1 className="text-4xl sm:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.15] max-w-4xl mx-auto">
-            Turn Learning Gaps into{' '}
-            <span className="bg-gradient-to-r from-brand-600 via-emerald-500 to-teal-400 bg-clip-text text-transparent">
-              Career Growth.
-            </span>
-          </h1>
-
-          <p className="text-lg sm:text-xl font-medium text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Know Your Gaps. Learn Smarter. Grow Faster.
-          </p>
-
-          <p className="text-sm text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            AI-Powered Personalized Learning and Competency Intelligence Platform. Identify skill gaps, get adaptive learning paths, and track progress — built for government & enterprise capacity building.
-          </p>
-
-          {/* Primary Action Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
-            <button
-              onClick={() => handleDemoClick('student')}
-              className="px-6 py-3.5 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-sm shadow-xl shadow-brand-500/25 flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
-            >
-              <Zap className="w-4 h-4" />
-              <span>Start Assessment</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-
-            <button
-              onClick={() => handleDemoClick('student')}
-              className="px-6 py-3.5 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-bold text-sm shadow-lg flex items-center gap-2 transition-all hover:scale-105"
-            >
-              <Sparkles className="w-4 h-4 text-amber-400 dark:text-amber-500" />
-              <span>Explore Platform</span>
-            </button>
-
-            <button
-              onClick={onOpenJudgeDemo}
-              className="px-6 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg shadow-emerald-500/25 flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
-            >
-              <ShieldCheck className="w-4 h-4" />
-              <span>1-Click Judge Demo</span>
-            </button>
-          </div>
-
-          {/* Persona Switchers */}
-          <div className="pt-2 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-            <span>Or quick launch persona:</span>
-            <button
-              onClick={() => handleDemoClick('instructor')}
-              className="font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
-            >
-              Instructor Portal (Dr. Sunita)
-            </button>
-            <span>•</span>
-            <button
-              onClick={() => handleDemoClick('admin')}
-              className="font-bold text-emerald-600 dark:text-emerald-400 hover:underline"
-            >
-              MoSPI Administrator
-            </button>
-          </div>
-
+    <div className="relative w-full max-w-[420px] aspect-square mx-auto">
+      {/* Central brain glow */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="w-40 h-40 rounded-full bg-gradient-to-br from-cyan-500/20 via-blue-500/15 to-violet-500/20 blur-2xl animate-pulse" />
+      </div>
+      <svg viewBox="0 0 400 400" className="w-full h-full relative z-10">
+        {/* Connection lines */}
+        {nodes.map((n, i) => (
+          <line
+            key={`line-${i}`}
+            x1={200} y1={200} x2={n.x} y2={n.y}
+            stroke="url(#lineGrad)" strokeWidth="1" opacity="0.4"
+            className="transition-opacity duration-300"
+            style={{ opacity: hovered === i ? 0.9 : 0.3 }}
+          />
+        ))}
+        {/* Orbit ring */}
+        <circle cx="200" cy="200" r="140" fill="none" stroke="url(#orbitGrad)" strokeWidth="0.5" opacity="0.3" strokeDasharray="4 8" className="animate-[spin_30s_linear_infinite]" style={{ transformOrigin: '200px 200px' }} />
+        <circle cx="200" cy="200" r="170" fill="none" stroke="url(#orbitGrad)" strokeWidth="0.3" opacity="0.15" strokeDasharray="2 12" className="animate-[spin_45s_linear_infinite_reverse]" style={{ transformOrigin: '200px 200px' }} />
+        {/* Brain center icon */}
+        <circle cx="200" cy="200" r="28" fill="url(#brainGrad)" opacity="0.9" />
+        <text x="200" y="207" textAnchor="middle" fill="white" fontSize="22" fontWeight="bold">AI</text>
+        {/* Skill nodes */}
+        {nodes.map((n, i) => (
+          <g key={i}
+            onMouseEnter={() => setHovered(i)}
+            onMouseLeave={() => setHovered(null)}
+            className="cursor-pointer"
+            style={{ animation: `float-node ${4 + i * 0.5}s ease-in-out infinite`, animationDelay: `${i * 0.3}s` }}
+          >
+            <circle cx={n.x} cy={n.y} r={hovered === i ? 30 : 24} fill="rgba(15,23,42,0.8)" stroke={n.color} strokeWidth={hovered === i ? 2 : 1} className="transition-all duration-300" style={{ filter: hovered === i ? `drop-shadow(0 0 8px ${n.color})` : 'none' }} />
+            <text x={n.x} y={n.y - 4} textAnchor="middle" fill={n.color} fontSize="9" fontWeight="700">{n.pct}%</text>
+            <text x={n.x} y={n.y + 8} textAnchor="middle" fill="#94a3b8" fontSize="7">{n.label}</text>
+          </g>
+        ))}
+        <defs>
+          <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.6" />
+            <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.6" />
+          </linearGradient>
+          <linearGradient id="orbitGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#06b6d4" />
+            <stop offset="100%" stopColor="#8b5cf6" />
+          </linearGradient>
+          <radialGradient id="brainGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#06b6d4" />
+            <stop offset="100%" stopColor="#3b82f6" />
+          </radialGradient>
+        </defs>
+      </svg>
+      {/* Hover card */}
+      {hovered !== null && (
+        <div className="absolute z-20 bg-slate-900/95 backdrop-blur-md border border-cyan-500/30 rounded-xl p-3 shadow-xl shadow-cyan-500/10 text-xs min-w-[180px]" style={{ left: nodes[hovered].x > 200 ? '10%' : '55%', top: `${(nodes[hovered].y / 400) * 100 - 5}%` }}>
+          <div className="font-bold text-cyan-400 mb-1">Skill Gap Detected</div>
+          <div className="text-slate-400">Current: <span className="text-white font-semibold">{nodes[hovered].pct}%</span></div>
+          <div className="text-slate-400">Target: <span className="text-emerald-400 font-semibold">85%</span></div>
+          <div className="text-slate-400">Gap: <span className="text-amber-400 font-semibold">{85 - nodes[hovered].pct}%</span></div>
+          <div className="mt-1 text-[10px] text-cyan-300 border-t border-slate-700 pt-1">AI recommends: {nodes[hovered].label} Fundamentals</div>
         </div>
-      </section>
-
-      {/* Problem vs Solution Comparison */}
-      <section className="py-16 bg-white dark:bg-navy-900 border-b border-slate-200/80 dark:border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-brand-600 mb-2">
-              Transforming EdTech Capacity Building
-            </h2>
-            <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
-              Why Traditional Learning Platforms Fail
-            </h3>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            {/* Traditional Card */}
-            <div className="p-6 sm:p-8 rounded-3xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200/60 dark:border-rose-900/40 space-y-4">
-              <div className="w-10 h-10 rounded-2xl bg-rose-100 dark:bg-rose-900/50 text-rose-600 flex items-center justify-center font-bold">
-                ✕
-              </div>
-              <h4 className="text-lg font-bold text-rose-950 dark:text-rose-200">
-                Traditional Learning Platforms
-              </h4>
-              <ul className="space-y-2.5 text-xs text-rose-800 dark:text-rose-300">
-                <li className="flex items-start gap-2">
-                  <span className="text-rose-500 font-bold">•</span>
-                  <span>Provides identical, rigid syllabus to every student regardless of background.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-rose-500 font-bold">•</span>
-                  <span>Zero insight into specific conceptual gaps or weak topics until final exam failure.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-rose-500 font-bold">•</span>
-                  <span>Static question banks with repetitive, non-adaptive assessments.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-rose-500 font-bold">•</span>
-                  <span>Disconnected from national civil service & governmental competency frameworks.</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* SkillSphere AI Card */}
-            <div className="p-6 sm:p-8 rounded-3xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-900/40 space-y-4 shadow-lg shadow-emerald-500/5">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 flex items-center justify-center font-bold">
-                ✓
-              </div>
-              <h4 className="text-lg font-bold text-emerald-950 dark:text-emerald-200">
-                SkillSphere AI Solution
-              </h4>
-              <ul className="space-y-2.5 text-xs text-emerald-800 dark:text-emerald-300">
-                <li className="flex items-start gap-2">
-                  <span className="text-emerald-600 font-bold">•</span>
-                  <span>Multi-source weighted competency engine (Quizzes, Courses, Assessments, Self-Rating).</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-emerald-600 font-bold">•</span>
-                  <span>Dynamic 30-Day Personalized Learning Roadmap updated in real-time as gaps close.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-emerald-600 font-bold">•</span>
-                  <span>Generates adaptive MCQs & quizzes directly from uploaded lecture notes (PDF/Word).</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-emerald-600 font-bold">•</span>
-                  <span>Architected with an <strong>iGOT Karmayogi Integration Layer</strong> for national capacity building.</span>
-                </li>
-              </ul>
-            </div>
-
-          </div>
-
-        </div>
-      </section>
-
-      {/* How It Works (6-Step Cycle) */}
-      <section className="py-16 border-b border-slate-200/80 dark:border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-brand-600 mb-2">
-              Continuous Optimization Cycle
-            </h2>
-            <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
-              How SkillSphere AI Closes Knowledge Gaps
-            </h3>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {[
-              { num: '01', title: 'Assess', desc: 'Baseline diagnostic & self-rating calibration' },
-              { num: '02', title: 'Detect', desc: 'AI identifies Critical & Developing skill gaps' },
-              { num: '03', title: 'Personalize', desc: 'Generates customized 30-day sprint' },
-              { num: '04', title: 'Learn', desc: 'Modular lessons & AI Mentor with citations' },
-              { num: '05', title: 'Measure', desc: 'Adaptive AI assessments from uploaded notes' },
-              { num: '06', title: 'Improve', desc: 'Real-time score recalculation & badges' },
-            ].map((step, idx) => (
-              <div
-                key={idx}
-                className="p-5 rounded-2xl bg-white dark:bg-navy-900 border border-slate-200 dark:border-slate-800 text-center space-y-2 hover:border-brand-500 transition-colors shadow-sm"
-              >
-                <div className="w-8 h-8 rounded-xl bg-brand-50 dark:bg-brand-950 text-brand-600 dark:text-brand-400 font-mono font-bold text-xs flex items-center justify-center mx-auto">
-                  {step.num}
-                </div>
-                <h4 className="text-sm font-bold text-slate-900 dark:text-white">{step.title}</h4>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">{step.desc}</p>
-              </div>
-            ))}
-          </div>
-
-        </div>
-      </section>
-
-      {/* Core Features Grid */}
-      <section className="py-16 bg-white dark:bg-navy-900 border-b border-slate-200/80 dark:border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-brand-600 mb-2">
-              End-to-End Functionality
-            </h2>
-            <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
-              Built for Enterprise & Government EdTech
-            </h3>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            <div className="p-6 rounded-3xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 space-y-3">
-              <div className="w-10 h-10 rounded-2xl bg-brand-100 dark:bg-brand-900/60 text-brand-600 flex items-center justify-center">
-                <Brain className="w-5 h-5" />
-              </div>
-              <h4 className="text-base font-bold text-slate-900 dark:text-white">
-                AI Competency Gap Engine
-              </h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                Multi-source weighted mathematical model: 30% Quiz, 20% Assessment, 20% Course, 15% Self, 15% Activity. Classifies skills into Critical, Developing, Proficient, and Mastery.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-3xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 space-y-3">
-              <div className="w-10 h-10 rounded-2xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 flex items-center justify-center">
-                <Map className="w-5 h-5" />
-              </div>
-              <h4 className="text-base font-bold text-slate-900 dark:text-white">
-                Personalized 30-Day Path
-              </h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                Dynamic roadmap generator structuring remediation for priority gaps first, followed by secondary reinforcement, capstone projects, and certification readiness.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-3xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 space-y-3">
-              <div className="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-900/60 text-amber-600 flex items-center justify-center">
-                <HelpCircle className="w-5 h-5" />
-              </div>
-              <h4 className="text-base font-bold text-slate-900 dark:text-white">
-                AI Document Quiz Generator
-              </h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                Upload PDFs, DOCX, or TXT notes. The semantic chunker and AI engine instantly create adaptive MCQs, True/False, and diagnostic quizzes with pedagogical explanations.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-3xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 space-y-3">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 flex items-center justify-center">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <h4 className="text-base font-bold text-slate-900 dark:text-white">
-                iGOT Karmayogi Layer
-              </h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                Modular provider pattern with mock REST synchronization, MoSPI statistical competency frameworks, and national civil service learning record passes.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-3xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 space-y-3">
-              <div className="w-10 h-10 rounded-2xl bg-cyan-100 dark:bg-cyan-900/60 text-cyan-600 flex items-center justify-center">
-                <Sparkles className="w-5 h-5" />
-              </div>
-              <h4 className="text-base font-bold text-slate-900 dark:text-white">
-                SkillSphere AI Mentor
-              </h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                Chatbot capable of explaining math, code, and theories with verified document citations, practice question generation, and 100% offline fallback resilience.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-3xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 space-y-3">
-              <div className="w-10 h-10 rounded-2xl bg-rose-100 dark:bg-rose-900/60 text-rose-600 flex items-center justify-center">
-                <BarChart3 className="w-5 h-5" />
-              </div>
-              <h4 className="text-base font-bold text-slate-900 dark:text-white">
-                Instructor & Admin Portals
-              </h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                Classroom competency heatmaps, at-risk learner identification, weak topic analytics, course authoring, audit logging, and downloadable CSV/PDF reports.
-              </p>
-            </div>
-
-          </div>
-
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-12 bg-slate-900 text-white text-center text-xs space-y-4">
-        <div className="flex items-center justify-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-brand-500 flex items-center justify-center text-slate-950 font-bold">
-            <Sparkles className="w-3.5 h-3.5" />
-          </div>
-          <span className="font-bold text-sm tracking-tight">SkillSphere AI</span>
-          <span className="text-slate-500">•</span>
-          <span className="text-slate-400">MoSPI SIH26101 Working Prototype</span>
-        </div>
-        <p className="text-slate-400 max-w-md mx-auto text-[11px]">
-          Developed for Smart India Hackathon 2026. Aligned with National Education Policy (NEP 2020) & Mission Karmayogi capacity building standards.
-        </p>
-      </footer>
-
+      )}
     </div>
   );
 };
+
+/* ─── Animated Counter ─── */
+const Counter = ({ end, suffix = '', duration = 2000 }) => {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+  const started = useRef(false);
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting && !started.current) {
+        started.current = true;
+        const start = performance.now();
+        const step = (now) => {
+          const progress = Math.min((now - start) / duration, 1);
+          setCount(Math.floor(progress * end));
+          if (progress < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      }
+    }, { threshold: 0.3 });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, [end, duration]);
+  return <span ref={ref}>{count}{suffix}</span>;
+};
+
+/* ─── Scroll Reveal ─── */
+const Reveal = ({ children, className = '', delay = 0 }) => {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVisible(true); }, { threshold: 0.15 });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+  return (
+    <div ref={ref} className={`transition-all duration-700 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'} ${className}`} style={{ transitionDelay: `${delay}ms` }}>
+      {children}
+    </div>
+  );
+};
+
+/* ─── Radar Chart ─── */
+const SkillRadar = () => {
+  const skills = [
+    { name: 'Statistics', value: 85 },
+    { name: 'Python', value: 72 },
+    { name: 'SQL', value: 68 },
+    { name: 'GIS', value: 70 },
+    { name: 'AI/ML', value: 45 },
+    { name: 'Data Viz', value: 60 },
+    { name: 'Digital Gov', value: 55 },
+    { name: 'Communication', value: 75 },
+  ];
+  const cx = 150, cy = 150, r = 120;
+  const angleStep = (2 * Math.PI) / skills.length;
+  const getPoint = (i, val) => {
+    const angle = angleStep * i - Math.PI / 2;
+    const dist = (val / 100) * r;
+    return [cx + dist * Math.cos(angle), cy + dist * Math.sin(angle)];
+  };
+  const polygonPoints = skills.map((s, i) => getPoint(i, s.value).join(',')).join(' ');
+
+  return (
+    <div className="relative">
+      <svg viewBox="0 0 300 300" className="w-full max-w-[320px] mx-auto">
+        {/* Grid rings */}
+        {[0.25, 0.5, 0.75, 1].map((pct, i) => (
+          <polygon key={i} points={skills.map((_, j) => getPoint(j, pct * 100).join(',')).join(' ')} fill="none" stroke="#334155" strokeWidth="0.5" opacity="0.4" />
+        ))}
+        {/* Axes */}
+        {skills.map((_, i) => {
+          const [x, y] = getPoint(i, 100);
+          return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="#334155" strokeWidth="0.5" opacity="0.3" />;
+        })}
+        {/* Data polygon */}
+        <polygon points={polygonPoints} fill="url(#radarFill)" stroke="#06b6d4" strokeWidth="2" opacity="0.85" />
+        {/* Data points */}
+        {skills.map((s, i) => {
+          const [x, y] = getPoint(i, s.value);
+          return (
+            <g key={i}>
+              <circle cx={x} cy={y} r="4" fill="#0f172a" stroke="#06b6d4" strokeWidth="2" />
+              <text x={x} y={y - 10} textAnchor="middle" fill="#e2e8f0" fontSize="8" fontWeight="700">{s.name}</text>
+            </g>
+          );
+        })}
+        <defs>
+          <linearGradient id="radarFill" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.3" />
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+  );
+};
+
+/* ═══════════════ MAIN LANDING PAGE ═══════════════ */
+export const LandingPage = () => {
+  const { loginAsDemo } = useAuth();
+  const navigate = useNavigate();
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileMenu, setMobileMenu] = useState(false);
+
+  useEffect(() => {
+    const h = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', h, { passive: true });
+    return () => window.removeEventListener('scroll', h);
+  }, []);
+
+  const handleDemo = async (role = 'student') => {
+    await loginAsDemo(role);
+    navigate('/dashboard');
+  };
+
+  const journeySteps = [
+    { num: '01', title: 'Assess', desc: 'AI evaluates your current competencies.', icon: <Brain size={20} /> },
+    { num: '02', title: 'Discover', desc: 'Identify knowledge and skill gaps.', icon: <Target size={20} /> },
+    { num: '03', title: 'Personalize', desc: 'Create an individualized learning path.', icon: <Sparkles size={20} /> },
+    { num: '04', title: 'Learn', desc: 'Connect with relevant learning resources.', icon: <BookOpen size={20} /> },
+    { num: '05', title: 'Grow', desc: 'Measure progress and update competency.', icon: <TrendingUp size={20} /> },
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#0a0e1a] text-slate-100 font-sans overflow-x-hidden">
+
+      {/* ═══ GLOBAL STYLES ═══ */}
+      <style>{`
+        @keyframes float-particle { 0%,100%{transform:translateY(0) scale(1);opacity:.3} 50%{transform:translateY(-20px) scale(1.2);opacity:.7} }
+        @keyframes float-node { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+        @keyframes glow-pulse { 0%,100%{box-shadow:0 0 15px rgba(6,182,212,0.15)} 50%{box-shadow:0 0 30px rgba(6,182,212,0.3)} }
+        @keyframes scan-ring { 0%{transform:translateY(-100%) scale(0.8);opacity:0} 50%{opacity:1} 100%{transform:translateY(100%) scale(1.2);opacity:0} }
+        @keyframes gradient-shift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+        @keyframes orbit-slow { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+        .glass { background: rgba(15,23,42,0.6); backdrop-filter: blur(12px); border: 1px solid rgba(148,163,184,0.1); }
+        .glass-hover:hover { border-color: rgba(6,182,212,0.4); box-shadow: 0 0 30px rgba(6,182,212,0.1); }
+        .gradient-text { background: linear-gradient(135deg, #06b6d4, #3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .glow-border { border: 1px solid rgba(6,182,212,0.2); box-shadow: 0 0 20px rgba(6,182,212,0.05); }
+        .journey-line { background: linear-gradient(90deg, #06b6d4, #3b82f6, #8b5cf6); height: 2px; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+      `}</style>
+
+      {/* ═══ NAVBAR ═══ */}
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-[#0a0e1a]/90 backdrop-blur-xl border-b border-slate-800/50 shadow-lg shadow-black/20' : 'bg-transparent'}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+              <Brain size={18} className="text-white" />
+            </div>
+            <div>
+              <span className="text-sm font-extrabold text-white tracking-tight">SkillIntell<span className="text-cyan-400">AI</span></span>
+              <span className="hidden sm:block text-[9px] text-slate-500 -mt-0.5">Powered for Official Statistics</span>
+            </div>
+          </div>
+          <div className="hidden md:flex items-center gap-6 text-xs font-medium text-slate-400">
+            {['Home', 'How It Works', 'Features', 'For Organizations'].map(l => (
+              <a key={l} href={`#${l.toLowerCase().replace(/\s/g, '-')}`} className="hover:text-cyan-400 transition-colors">{l}</a>
+            ))}
+          </div>
+          <div className="flex items-center gap-3">
+            <button onClick={() => handleDemo('student')} className="hidden sm:flex px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-bold hover:shadow-lg hover:shadow-cyan-500/25 transition-all">
+              Get Started <ArrowRight size={14} className="inline ml-1" />
+            </button>
+            <button onClick={() => setMobileMenu(!mobileMenu)} className="md:hidden text-slate-400 hover:text-white">
+              {mobileMenu ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
+        </div>
+        {mobileMenu && (
+          <div className="md:hidden bg-[#0a0e1a]/95 backdrop-blur-xl border-t border-slate-800/50 px-4 py-4 space-y-3">
+            {['Home', 'How It Works', 'Features', 'For Organizations'].map(l => (
+              <a key={l} href={`#${l.toLowerCase().replace(/\s/g, '-')}`} className="block text-sm text-slate-300 hover:text-cyan-400" onClick={() => setMobileMenu(false)}>{l}</a>
+            ))}
+            <button onClick={() => { handleDemo('student'); setMobileMenu(false); }} className="w-full px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-bold">Get Started</button>
+          </div>
+        )}
+      </nav>
+
+      {/* ═══ HERO ═══ */}
+      <section className="relative min-h-screen flex items-center pt-20 pb-16">
+        <ParticleField />
+        {/* Atmospheric glow */}
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-cyan-500/8 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-violet-500/8 blur-[120px] rounded-full pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left: Text */}
+            <div className="space-y-6 text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass glow-border text-xs font-semibold text-cyan-300">
+                <Sparkles size={12} /> AI-POWERED SKILL INTELLIGENCE
+              </div>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.1] tracking-tight">
+                Know Your <span className="text-cyan-400">Skills</span>.<br />
+                Find Your <span className="text-blue-400">Gaps</span>.<br />
+                Build Your <span className="gradient-text">Future</span>.
+              </h1>
+              <p className="text-base sm:text-lg text-slate-400 max-w-lg mx-auto lg:mx-0 leading-relaxed">
+                AI-powered skill intelligence that transforms competency gaps into personalized learning journeys for India's future-ready statistical workforce.
+              </p>
+              <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
+                <button onClick={() => handleDemo('student')} className="px-6 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-sm hover:shadow-xl hover:shadow-cyan-500/25 transition-all flex items-center gap-2">
+                  Discover My Skill Path <ArrowRight size={16} />
+                </button>
+                <button className="px-6 py-3 rounded-2xl glass glow-border text-slate-300 font-bold text-sm hover:text-white transition-all flex items-center gap-2">
+                  <Play size={14} className="text-cyan-400" /> Watch How It Works
+                </button>
+              </div>
+              <div className="flex gap-8 pt-4 justify-center lg:justify-start">
+                {[
+                  { val: 50, suffix: 'K+', label: 'Learners' },
+                  { val: 120, suffix: '+', label: 'Learning Resources' },
+                  { val: 0, suffix: '', label: 'AI-Powered Growth', text: true },
+                ].map((s, i) => (
+                  <div key={i} className="text-center">
+                    <div className="text-xl font-black text-white">{s.text ? s.label : <Counter end={s.val} suffix={s.suffix} />}</div>
+                    {!s.text && <div className="text-[10px] text-slate-500 font-medium">{s.label}</div>}
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Right: AI Brain */}
+            <div className="flex justify-center">
+              <AIBrain />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ SECTION 2: CORE JOURNEY ═══ */}
+      <section id="how-it-works" className="relative py-20 sm:py-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="text-center mb-16 space-y-3">
+              <h2 className="text-3xl sm:text-4xl font-black">From Skill Gaps <span className="gradient-text">to Skill Growth</span></h2>
+              <p className="text-slate-400 max-w-xl mx-auto">One intelligent learning journey, continuously adapting to you.</p>
+            </div>
+          </Reveal>
+          {/* Journey line */}
+          <div className="relative">
+            <div className="hidden lg:block absolute top-[52px] left-[10%] right-[10%] h-[2px] bg-gradient-to-r from-cyan-500/50 via-blue-500/50 to-violet-500/50" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-6">
+              {journeySteps.map((step, i) => (
+                <Reveal key={i} delay={i * 120}>
+                  <div className="glass glass-hover rounded-2xl p-5 text-center space-y-3 hover:scale-105 transition-transform duration-300 relative">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 flex items-center justify-center mx-auto text-cyan-400">
+                      {step.icon}
+                    </div>
+                    <div className="text-[10px] font-bold text-cyan-500 tracking-widest">{step.num}</div>
+                    <div className="text-sm font-bold text-white">{step.title}</div>
+                    <p className="text-xs text-slate-400 leading-relaxed">{step.desc}</p>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ SECTION 3: SKILL DNA ═══ */}
+      <section id="features" className="relative py-20 sm:py-28">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-500/[0.02] to-transparent pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="text-center mb-12 space-y-3">
+              <h2 className="text-3xl sm:text-4xl font-black">Your <span className="gradient-text">Skill DNA</span></h2>
+              <p className="text-slate-400 max-w-xl mx-auto">A living competency profile that evolves as you learn.</p>
+            </div>
+          </Reveal>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <Reveal>
+              <SkillRadar />
+            </Reveal>
+            <Reveal delay={200}>
+              <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass glow-border text-[10px] font-bold text-cyan-300 tracking-wider">
+                  <Sparkles size={10} /> AI ANALYSIS COMPLETE
+                </div>
+                <div className="glass rounded-2xl p-6 space-y-4">
+                  <div className="text-sm font-bold text-slate-300">Current Competency</div>
+                  <div className="text-5xl font-black gradient-text">3.2 <span className="text-lg text-slate-500">/ 5</span></div>
+                  <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-700/50">
+                    <div className="text-center">
+                      <div className="text-2xl font-black text-white">8</div>
+                      <div className="text-[10px] text-slate-500">Skills Assessed</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-black text-amber-400">3</div>
+                      <div className="text-[10px] text-slate-500">Skill Gaps</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-black text-emerald-400">+12%</div>
+                      <div className="text-[10px] text-slate-500">Growth</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ SECTION 4: PERSONALIZED LEARNING ═══ */}
+      <section className="relative py-20 sm:py-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="text-center mb-12 space-y-3">
+              <h2 className="text-3xl sm:text-4xl font-black">Your AI Knows What You Need <span className="gradient-text">Next</span></h2>
+              <p className="text-slate-400 max-w-xl mx-auto">Stop searching through hundreds of resources. Let AI identify the learning that matters most to your role.</p>
+            </div>
+          </Reveal>
+          <Reveal delay={200}>
+            <div className="max-w-lg mx-auto glass rounded-3xl p-6 space-y-5 glow-border" style={{ animation: 'glow-pulse 3s ease-in-out infinite' }}>
+              <div className="flex items-center gap-2 text-xs font-bold text-cyan-400">
+                <Target size={14} /> Recommended for You
+              </div>
+              <h3 className="text-lg font-extrabold text-white">Python for Statistical Analysis</h3>
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="bg-slate-800/50 rounded-xl p-3">
+                  <div className="text-slate-500 mb-1">Current competency</div>
+                  <div className="text-lg font-black text-amber-400">2.1 / 5</div>
+                </div>
+                <div className="bg-slate-800/50 rounded-xl p-3">
+                  <div className="text-slate-500 mb-1">Target competency</div>
+                  <div className="text-lg font-black text-emerald-400">3.5 / 5</div>
+                </div>
+                <div className="bg-slate-800/50 rounded-xl p-3">
+                  <div className="text-slate-500 mb-1">Skill gap</div>
+                  <div className="text-lg font-black text-rose-400">1.4</div>
+                </div>
+                <div className="bg-slate-800/50 rounded-xl p-3">
+                  <div className="text-slate-500 mb-1">Role relevance</div>
+                  <div className="text-lg font-black text-cyan-400">High</div>
+                </div>
+              </div>
+              <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-xl p-3 text-xs text-slate-300 leading-relaxed">
+                <span className="font-bold text-cyan-400">Why this recommendation?</span><br />
+                "Your current competency indicates that strengthening Python would help close an identified technical skill gap for your career goal."
+              </div>
+              <button onClick={() => handleDemo('student')} className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-sm hover:shadow-lg hover:shadow-cyan-500/25 transition-all flex items-center justify-center gap-2">
+                View Learning Path <ArrowRight size={14} />
+              </button>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ═══ SECTION 5: iGOT + NSSTA ECOSYSTEM ═══ */}
+      <section id="for-organizations" className="relative py-20 sm:py-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="text-center mb-12 space-y-3">
+              <h2 className="text-3xl sm:text-4xl font-black">One Intelligence Layer. <span className="gradient-text">Multiple Ecosystems.</span></h2>
+              <p className="text-slate-400 max-w-xl mx-auto">Seamlessly connects with India's learning infrastructure.</p>
+            </div>
+          </Reveal>
+          <Reveal delay={200}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+              {/* Left */}
+              <div className="glass rounded-2xl p-6 text-center space-y-3 glow-border">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center mx-auto text-cyan-400 border border-cyan-500/30">
+                  <Brain size={22} />
+                </div>
+                <div className="text-sm font-bold text-white">Your Competency Profile</div>
+                <p className="text-xs text-slate-400">AI-analyzed skill assessment with real-time tracking</p>
+              </div>
+              {/* Center */}
+              <div className="space-y-4">
+                <div className="glass rounded-2xl p-5 text-center space-y-2 glow-border border-cyan-500/30">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mx-auto text-white shadow-lg shadow-cyan-500/20">
+                    <Zap size={22} />
+                  </div>
+                  <div className="text-sm font-bold text-white">AI Skill Intelligence Engine</div>
+                  <p className="text-[10px] text-cyan-400">Gap Analysis + Path Generation + Adaptive Assessment</p>
+                </div>
+                <div className="flex justify-center text-cyan-500/40 text-lg">↓</div>
+                <div className="glass rounded-2xl p-5 text-center glow-border">
+                  <div className="text-sm font-bold text-white">Personalized Learning Path</div>
+                  <p className="text-[10px] text-slate-400 mt-1">Continuous competency-driven recommendations</p>
+                </div>
+              </div>
+              {/* Right columns */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="glass rounded-2xl p-4 text-center space-y-2">
+                  <div className="text-lg">🏛️</div>
+                  <div className="text-[11px] font-bold text-white">iGOT Karmayogi</div>
+                  <div className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-bold">iGOT-ready</div>
+                </div>
+                <div className="glass rounded-2xl p-4 text-center space-y-2">
+                  <div className="text-lg">📊</div>
+                  <div className="text-[11px] font-bold text-white">NSSTA</div>
+                  <div className="text-[9px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 font-bold">NSSTA-ready</div>
+                </div>
+                <div className="glass rounded-2xl p-4 text-center space-y-2 col-span-2">
+                  <div className="text-sm font-bold text-white">Courses & Training Programmes</div>
+                  <p className="text-[10px] text-slate-400">Connected learning ecosystem for capacity building</p>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ═══ SECTION 6: AI QUIZ GENERATOR ═══ */}
+      <section className="relative py-20 sm:py-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="text-center mb-12 space-y-3">
+              <h2 className="text-3xl sm:text-4xl font-black"><span className="gradient-text">Upload. Generate. Assess.</span></h2>
+              <p className="text-slate-400 max-w-xl mx-auto">Turn learning materials into intelligent assessments in seconds.</p>
+            </div>
+          </Reveal>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+            <Reveal delay={0}>
+              <div className="glass rounded-2xl p-6 text-center space-y-3 glow-border">
+                <Upload size={28} className="text-cyan-400 mx-auto" />
+                <div className="text-sm font-bold text-white">Upload Material</div>
+                <p className="text-xs text-slate-400">PDF, PPT, DOCX, TXT</p>
+                <div className="p-3 rounded-xl bg-slate-800/50 border border-dashed border-slate-600 text-xs text-slate-500">
+                  📄 Sampling_Methodology.pdf
+                </div>
+              </div>
+            </Reveal>
+            <Reveal delay={200}>
+              <div className="flex flex-col items-center justify-center py-8 space-y-3">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-violet-500 flex items-center justify-center animate-pulse shadow-lg shadow-cyan-500/30">
+                  <Sparkles size={24} className="text-white" />
+                </div>
+                <div className="text-xs font-bold text-cyan-400 tracking-widest">AI PROCESSING</div>
+                <div className="w-48 h-1 bg-slate-800 rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-cyan-500 to-violet-500 rounded-full" style={{ width: '100%', animation: 'gradient-shift 2s ease infinite', backgroundSize: '200% 100%' }} />
+                </div>
+              </div>
+            </Reveal>
+            <Reveal delay={400}>
+              <div className="glass rounded-2xl p-6 space-y-4 glow-border">
+                <div className="text-sm font-bold text-white">10 AI-Generated MCQs</div>
+                <div className="bg-slate-800/50 rounded-xl p-4 space-y-2">
+                  <div className="text-[10px] font-bold text-cyan-400">QUESTION 01</div>
+                  <p className="text-xs text-slate-300">What is the primary purpose of stratified sampling?</p>
+                  <div className="space-y-1 text-[11px]">
+                    <div className="text-slate-500">A. Increase population size</div>
+                    <div className="text-emerald-400 font-semibold">B. Divide into homogeneous groups ✓</div>
+                    <div className="text-slate-500">C. Remove all sampling error</div>
+                    <div className="text-slate-500">D. Eliminate data collection</div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="text-xs text-slate-400">AI Explanation included</div>
+                  <div className="px-3 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 text-xs font-bold">8 / 10</div>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ SECTION 7: WORKFORCE INTELLIGENCE ═══ */}
+      <section className="relative py-20 sm:py-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="text-center mb-12 space-y-3">
+              <h2 className="text-3xl sm:text-4xl font-black">From Individual Growth to <span className="gradient-text">Workforce Intelligence</span></h2>
+              <p className="text-slate-400 max-w-xl mx-auto">Give organizations a clear view of skills, gaps, and capabilities.</p>
+            </div>
+          </Reveal>
+          <Reveal delay={200}>
+            <div className="max-w-2xl mx-auto glass rounded-3xl p-6 space-y-4 glow-border">
+              {[
+                { skill: 'AI / ML', pct: 35, gap: 'HIGH GAP', color: '#ef4444' },
+                { skill: 'Python', pct: 58, gap: 'MEDIUM GAP', color: '#f59e0b' },
+                { skill: 'SQL', pct: 62, gap: 'MEDIUM GAP', color: '#f59e0b' },
+                { skill: 'GIS', pct: 72, gap: 'LOW GAP', color: '#3b82f6' },
+                { skill: 'Statistics', pct: 85, gap: 'STRONG', color: '#10b981' },
+              ].map((s, i) => (
+                <div key={i} className="flex items-center gap-4">
+                  <div className="w-28 text-xs font-bold text-slate-300">{s.skill}</div>
+                  <div className="flex-1 h-3 bg-slate-800 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${s.pct}%`, backgroundColor: s.color }} />
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: s.color + '20', color: s.color }}>{s.gap}</span>
+                </div>
+              ))}
+              <div className="flex items-center gap-2 pt-3 border-t border-slate-700/50">
+                <BarChart3 size={14} className="text-cyan-400" />
+                <span className="text-[10px] text-slate-400 font-medium">Workforce analytics for organizational decision-making</span>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ═══ SECTION 8: FUTURE SKILLS ═══ */}
+      <section className="relative py-20 sm:py-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="text-center mb-12 space-y-3">
+              <h2 className="text-3xl sm:text-4xl font-black">Prepare for <span className="gradient-text">What Comes Next</span></h2>
+              <p className="text-slate-400 max-w-xl mx-auto">Identify emerging skills before they become critical.</p>
+            </div>
+          </Reveal>
+          <Reveal delay={200}>
+            <div className="flex flex-wrap justify-center gap-4 max-w-3xl mx-auto">
+              {['AI / ML', 'Data Science', 'Cloud Computing', 'Cybersecurity', 'GIS', 'Automation', 'Data Visualization', 'APIs'].map((skill, i) => (
+                <div key={i} className="px-5 py-3 rounded-2xl glass glow-border text-sm font-semibold text-slate-300 hover:text-cyan-400 hover:border-cyan-500/40 transition-all cursor-default" style={{ animation: `float-node ${4 + i * 0.3}s ease-in-out infinite`, animationDelay: `${i * 0.2}s` }}>
+                  {skill}
+                </div>
+              ))}
+              <div className="w-full flex justify-center pt-6">
+                <div className="px-6 py-3 rounded-2xl bg-gradient-to-r from-cyan-500/10 to-violet-500/10 border border-cyan-500/30 text-sm font-bold text-cyan-400">
+                  FUTURE-READY WORKFORCE
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ═══ FINAL CTA ═══ */}
+      <section className="relative py-24 sm:py-32">
+        <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/5 via-transparent to-transparent pointer-events-none" />
+        <ParticleField />
+        <Reveal>
+          <div className="max-w-3xl mx-auto text-center px-4 space-y-6">
+            <h2 className="text-3xl sm:text-5xl font-black">Your Next Skill Is <span className="gradient-text">Waiting</span></h2>
+            <p className="text-slate-400 max-w-lg mx-auto text-lg">Discover where you are. Understand where you need to go. Let AI build the path.</p>
+            <button onClick={() => handleDemo('student')} className="px-8 py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-base hover:shadow-2xl hover:shadow-cyan-500/30 transition-all inline-flex items-center gap-2" style={{ animation: 'glow-pulse 2s ease-in-out infinite' }}>
+              <Sparkles size={18} /> Discover My Skill Path <ArrowRight size={18} />
+            </button>
+            <p className="text-[10px] text-slate-600 pt-4">Prototype demo • Built for SIH 2026 Problem Statement 26101</p>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* ═══ FOOTER ═══ */}
+      <footer className="border-t border-slate-800/50 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center"><Brain size={14} className="text-white" /></div>
+                <span className="text-sm font-extrabold text-white">SkillIntell<span className="text-cyan-400">AI</span></span>
+              </div>
+              <p className="text-xs text-slate-500 leading-relaxed">AI-powered skill intelligence for a future-ready statistical workforce.</p>
+            </div>
+            {[
+              { title: 'Platform', links: ['How It Works', 'Features', 'AI Quiz Generator'] },
+              { title: 'Organization', links: ['For MoSPI', 'iGOT Integration', 'NSSTA Training'] },
+              { title: 'Connect', links: ['Contact', 'GitHub', 'SIH 2026'] },
+            ].map((col, i) => (
+              <div key={i} className="space-y-3">
+                <div className="text-xs font-bold text-slate-300 uppercase tracking-wider">{col.title}</div>
+                {col.links.map(l => <a key={l} href="#" className="block text-xs text-slate-500 hover:text-cyan-400 transition-colors">{l}</a>)}
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 pt-6 border-t border-slate-800/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-[10px] text-slate-600">
+            <span>SIH 2026 • Problem Statement 26101 • MoSPI</span>
+            <span>Prototype demo. Demo data used throughout.</span>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default LandingPage;

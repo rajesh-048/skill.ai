@@ -88,15 +88,17 @@ export const App = () => {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-navy-950 text-slate-900 dark:text-slate-100">
       
-      {/* Global Top Navbar */}
-      <Navbar
-        onOpenSearch={() => setSearchOpen(true)}
-        onOpenNotifications={() => setNotificationsOpen(true)}
-        onOpenDemoModal={() => setJudgeDemoOpen(true)}
-      />
+      {/* Global Top Navbar — hidden on landing page (has its own) */}
+      {!isPublicPage && (
+        <Navbar
+          onOpenSearch={() => setSearchOpen(true)}
+          onOpenNotifications={() => setNotificationsOpen(true)}
+          onOpenDemoModal={() => setJudgeDemoOpen(true)}
+        />
+      )}
 
       {/* Main Layout Body */}
-      <div className="flex-1 flex w-full max-w-7xl mx-auto">
+      <div className={`flex-1 flex w-full ${isPublicPage ? '' : 'max-w-7xl mx-auto'}`}>
         
         {/* Role-based Sidebar (hidden on public landing/login/register) */}
         {!isPublicPage && (
